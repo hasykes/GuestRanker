@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width">
+		<title>Guest Ranker</title>
+
+		<style>
+		html{
+			width:100vw;
+			height:100vh;
+			background:linen;
+		}
+		
+		body{
+			height:100%;
+			width:100%;
+		}
+		
+		.container{
+			width:100%;
+			height:100%;
+			padding:10% 0;
+			display:flex;
+			
+			justify-content:center;
+		}
+		
+		#mainUI{
+			width:600px;
+			height:600px;
+			border: 1px dashed red;
+			text-align:center;
+			display:flex;
+			flex-direction:column;
+			
+			background:linear-gradient(141deg, #0fb8ad 0%, #1fc8db 51%, #2cb5e8 75%);
+			border:1px ridge black;
+			border-radius:10px;
+			box-shadow:5px 10px #888888;
+		}
+		
+		.teamCon{
+			/*border:1px solid blue;*/
+			display:flex;
+			flex-direction:row;
+			/*align-items:center;*/
+		}
+		h1{
+			margin: 0 auto;
+			align-self:center;
+		}
+		
+		.message{
+			margin: 0 auto;
+			align-self:center;
+		}
+		
+		#teamConTop{
+			flex:1 1 auto;
+		}
+		
+		#teamConMid{
+			flex:2 1 auto;
+		}
+		#teamConBtm{
+			flex:1 1 auto;
+		}
+		.team{
+			flex:1 0 auto;
+			border:1px solid green;
+		}
+		
+		.teamName{
+			margin:50px 0;
+			
+		}
+		
+		.sliderCon{
+			margin:auto auto;
+		}
+		
+		/* The Modal (background) */
+		.modal {
+			display:none; /* Hidden by default */
+			position: fixed; /* Stay in place */
+			z-index: 1; /* Sit on top */
+			padding-top: 100px; /* Location of the box */
+			left: 0;
+			top: 0;
+			width: 100%; /* Full width */
+			height: 100%; /* Full height */
+			overflow: auto; /* Enable scroll if needed */
+			background-color: rgb(0,0,0); /* Fallback color */
+			background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+		}
+
+		/* Modal Content */
+		.modal-content {
+			background-color: #fefefe;
+			margin: auto;
+			padding: 20px;
+			border: 1px solid #888;
+			width: 80%;
+		}
+
+		/* The Close Button */
+		.close {
+			color: #aaaaaa;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+		}
+
+		.close:hover,
+		.close:focus {
+			color: #000;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div id="mainUI">
+				<div class="teamCon" id="teamConTop">
+					<h1>Guest Ranker</h1>
+				</div>
+				<div class="teamCon" id="teamConMid">
+					<div class="team">
+						<p class="teamName" id="team1Name"><strong>Team 1 Name</strong></p>
+						<button id="team1Button" style="" onclick="updateStats(0,1)">Choose Team 1</button>
+						
+					</div>
+					<div class="team">
+						<p class="teamName" id="team2Name"><strong>Team 2 Name</strong></p>
+						<button id="team2Button" style="" onclick="updateStats(1,0)">Choose Team 2</button>
+					</div>
+				</div>
+				<div class="teamCon" id="teamConBtm">
+					<div class="sliderCon">
+						Number of Trials:<p id="trialNum">100</p></br>
+						<input type="range" name="numOfTrials" min="1" max="500" value="5" class="slider">
+					</div>	
+					<div class="sliderCon">	
+						Number of Guests:<p id="guestNum">25</p></br>
+						<input type="range" name="numOfGuests" min="1" max="250" value="25" class="slider">
+					</div>	
+				</div>
+			</div>
+			<!-- The Modal -->
+			<div id="myModal" class="modal">
+				<!-- Modal content -->
+				<div class="modal-content">
+					<span class="close">&times;</span>
+					<h1>Ranks</h1>
+					<p>
+						<ol class="guestList">
+						</ol>
+					</p>
+				</div>
+
+			</div>
+		</div>
+		<script>
+			const t1Button = document.querySelector('#team1Button');
+			const t2Button = document.querySelector('#team2Button');
+			const t1Name = document.querySelector('#team1Name');
+			const t2Name = document.querySelector('#team2Name');
+			const message = document.querySelector('.message');
+			const inputs = document.querySelectorAll('input');
+			const guestNum = document.querySelector('#guestNum');
+			const trialNum = document.querySelector('#trialNum');
+			
+			/*Modal constants*/
+			const closeButton = document.querySelector('.close');
+			const modal = document.querySelector('.modal');
+			const guestList = document.querySelector('.guestList');
+		
+			
+			const pGuests = [];
+			const teamStats = {};
+			
+			let numGuests = inputs[1].value;
+			let numTrials = inputs[0].value;
+			let trial = 0;
+			
+			let upToBat;
+			
+			/*create guest array for potential guests*/
+			var i;
+			for (i = 0; i < numGuests; i++) { 
+				pGuests.push('p'+i);
+			}
+			
+			/*create teamStats object to track yes, no, delta, teams beat and teams lost*/
+			pGuests.forEach(guest => {
+				teamStats[guest] = {'y':0,'n':0,'d':0,'w':[],'l':[]};
+			});
+			
+			getTeams();
+			
+			/**/
+			function getTeams(){
+				let t1Index;
+				let t2Index;
+				let numTeamsLoaded = 0;
+				let randomNum;
+				
+
+				while(numTeamsLoaded < 2){
+					randomNum = Math.floor(Math.random()*pGuests.length);
+					if (numTeamsLoaded == 0){
+						t1Index = pGuests[randomNum];
+						/*console.log("t1" + t1Index);*/
+						numTeamsLoaded = 1;
+					}else{
+						if(t1Index != pGuests[randomNum]){
+							t2Index = pGuests[randomNum];
+							/*console.log("t2" + t2Index);*/
+							numTeamsLoaded = 2;
+						}
+					}	
+				}
+				t1Name.innerText = t1Index;
+				t2Name.innerText = t2Index;
+				trial+=1;
+				
+				return upToBat = [t1Index,t2Index];
+			}
+			
+			function sortGuests(){
+				t1Button.style = "display:none;";
+				t2Button.style = "display:none;";
+				t1Name.style = "display:none;";
+				t2Name.style = "display:none;";
+				
+				pGuests.forEach(guest => {
+					teamStats[guest]['d'] = teamStats[guest]['y'] - teamStats[guest]['n'];
+				});
+				
+				const sortedGuests = pGuests.sort((a,b) => teamStats[a]['d'] > teamStats[b]['d'] ? -1 : 1 );
+				/*console.table(sortedGuests);
+				console.table(teamStats);*/
+				console.log(teamStats);
+				populateList(sortedGuests);
+				return sortedGuests
+			}
+			
+			function updateStats(win,lose){
+				
+				teamStats[upToBat[win]]['y'] += 1;/*increase win count*/
+				teamStats[upToBat[win]]['w'].push(upToBat[lose]);/*Track teams beat*/
+				teamStats[upToBat[lose]]['n'] += 1;/*incread loss count*/
+				teamStats[upToBat[lose]]['l'].push(upToBat[win]);/*Track teams lost to*/
+				
+				/*console.log(teamStats[upToBat[win]]['y']);
+				console.log(teamStats[upToBat[lose]]['n']);*/
+					
+				if (trial >= numTrials){
+					sortedGuests = sortGuests();
+				}else{
+					getTeams();
+				}
+				
+			}
+			
+			function screenUpdate(){
+			
+				if (this.name === 'numOfTrials'){
+					trialNum.innerText = this.value;
+					numTrials = this.value;
+					
+				}else{
+					guestNum.innerText = this.value;
+					numGuests = this.value;
+				} 
+			}
+			
+			// Returns a csv from an object of objects
+			// values separated by tabs and rows separated by newlines
+			function CSV(obj) {
+				const col = [];
+				for (var key in obj) {
+					const row = [];
+				  for(var key2 in obj[key]){
+					row.push(obj[key][key2]);
+					console.log(row);
+				  }
+				  row.forEach(item => {})
+				  col.push(row)
+				  
+				  /*stringy = JSON.stringify(obj[key]).split(',');
+				  console.log(stringy);*/
+				  
+				}
+				console.log(col.join('\n'));
+			}
+			
+			function populateList(sortedGuests) {
+				guestList.innerHTML = sortedGuests.map((guest,i) => {
+					return `<li>${guest}  | Score:   ${teamStats[guest]['d']}</li>`;
+				}).join('');
+				
+				modal.style.display = "block";
+
+			}
+			
+			function closeModal(){
+				modal.style.display = "none";
+				location = location;
+			}
+			
+			inputs.forEach(input => input.addEventListener('change', screenUpdate));
+			closeButton.addEventListener('click', closeModal);
+			
+		</script>
+	</body>
+</html>
