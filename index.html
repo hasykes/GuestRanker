@@ -63,13 +63,14 @@
 		
 		#teamConMid{
 			flex:2 1 auto;
+			position:relative;
 		}
 		#teamConBtm{
 			flex:1 1 auto;
 		}
 		.team{
 			flex:1 0 auto;
-			border:1px solid green;
+			border:0px solid green;
 		}
 		
 		.teamName{
@@ -85,7 +86,7 @@
 		.modal {
 			display:none; /* Hidden by default */
 			position: fixed; /* Stay in place */
-			z-index: 1; /* Sit on top */
+			z-index: 2; /* Sit on top */
 			padding-top: 100px; /* Location of the box */
 			left: 0;
 			top: 0;
@@ -119,6 +120,13 @@
 			text-decoration: none;
 			cursor: pointer;
 		}
+		
+		.teamTie{
+			position:absolute;
+			z-index:1;
+			left:47%;
+			bottom:50%;
+		}
 
 		</style>
 	</head>
@@ -129,14 +137,17 @@
 					<h1>Guest Ranker</h1>
 				</div>
 				<div class="teamCon" id="teamConMid">
+					
 					<div class="team">
 						<p class="teamName" id="team1Name"><strong>Team 1 Name</strong></p>
-						<button id="team1Button" style="" onclick="updateStats(0,1)">Choose Team 1</button>
+						<button id="team1Button" style="" onclick="updateStats(0,1,0)">Choose Team 1</button>
 						
 					</div>
+					
+					<div class="teamTie"><button id="teamTie" style="z-index:1;" onclick="updateStats(0,1,1)">Tie</button></div>
 					<div class="team">
 						<p class="teamName" id="team2Name"><strong>Team 2 Name</strong></p>
-						<button id="team2Button" style="" onclick="updateStats(1,0)">Choose Team 2</button>
+						<button id="team2Button" style="" onclick="updateStats(1,0,0)">Choose Team 2</button>
 					</div>
 				</div>
 				<div class="teamCon" id="teamConBtm">
@@ -189,6 +200,29 @@
 			
 			let upToBat;
 			
+			//ELO function from https://github.com/moroshko/elo.js
+			window.Elo = (function() {
+			function getRatingDelta(myRating, opponentRating, myGameResult) {
+				if ([0, 0.5, 1].indexOf(myGameResult) === -1) {
+				  return null;
+				}
+				
+				var myChanceToWin = 1 / ( 1 + Math.pow(10, (opponentRating - myRating) / 400));
+
+				return Math.round(32 * (myGameResult - myChanceToWin));
+			  }
+
+			  function getNewRating(myRating, opponentRating, myGameResult) {
+				return myRating + getRatingDelta(myRating, opponentRating, myGameResult);
+			  }
+
+			  return {
+				getRatingDelta: getRatingDelta,
+				getNewRating: getNewRating
+			  };
+			})();
+	//-----------------------------------------------------------------------------------
+	
 			/*create guest array for potential guests*/
 			var i;
 			for (i = 0; i < numGuests; i++) { 
@@ -197,7 +231,7 @@
 			
 			/*create teamStats object to track yes, no, delta, teams beat and teams lost*/
 			pGuests.forEach(guest => {
-				teamStats[guest] = {'y':0,'n':0,'d':0,'w':[],'l':[]};
+				teamStats[guest] = {'y':0,'n':0,'d':0,'w':[],'l':[],'s':1000};
 			});
 			
 			getTeams();
@@ -241,7 +275,7 @@
 					teamStats[guest]['d'] = teamStats[guest]['y'] - teamStats[guest]['n'];
 				});
 				
-				const sortedGuests = pGuests.sort((a,b) => teamStats[a]['d'] > teamStats[b]['d'] ? -1 : 1 );
+				const sortedGuests = pGuests.sort((a,b) => teamStats[a]['s'] > teamStats[b]['s'] ? -1 : 1 );
 				/*console.table(sortedGuests);
 				console.table(teamStats);*/
 				console.log(teamStats);
@@ -249,22 +283,27 @@
 				return sortedGuests
 			}
 			
-			function updateStats(win,lose){
+			function updateStats(win,lose,tie){//tie is boolean
 				
 				teamStats[upToBat[win]]['y'] += 1;/*increase win count*/
 				teamStats[upToBat[win]]['w'].push(upToBat[lose]);/*Track teams beat*/
 				teamStats[upToBat[lose]]['n'] += 1;/*incread loss count*/
 				teamStats[upToBat[lose]]['l'].push(upToBat[win]);/*Track teams lost to*/
 				
-				/*console.log(teamStats[upToBat[win]]['y']);
-				console.log(teamStats[upToBat[lose]]['n']);*/
-					
 				if (trial >= numTrials){
 					sortedGuests = sortGuests();
 				}else{
 					getTeams();
 				}
 				
+				if (tie === 1){
+					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],.5);//Update Tie Scores
+					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],.5);//Update Tie Scores	
+				}else{
+					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],1); //Update Winner Score
+					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],0); //Update Loser Score
+				}
+				console.log(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'])	
 			}
 			
 			function screenUpdate(){
@@ -281,27 +320,28 @@
 			
 			// Returns a csv from an object of objects
 			// values separated by tabs and rows separated by newlines
-			function CSV(obj) {
+/*			function CSV(obj) {
 				const col = [];
 				for (var key in obj) {
 					const row = [];
 				  for(var key2 in obj[key]){
 					row.push(obj[key][key2]);
-					console.log(row);
 				  }
 				  row.forEach(item => {})
-				  col.push(row)
+				  col.push(row);
+				  console.log('col');
+				  console.log(col);
 				  
-				  /*stringy = JSON.stringify(obj[key]).split(',');
-				  console.log(stringy);*/
+				  stringy = JSON.stringify(obj[key]).split(',');
+				  console.log(stringy);
 				  
 				}
 				console.log(col.join('\n'));
-			}
+			} */
 			
 			function populateList(sortedGuests) {
 				guestList.innerHTML = sortedGuests.map((guest,i) => {
-					return `<li>${guest}  | Score:   ${teamStats[guest]['d']}</li>`;
+					return `<li>${guest}  | Score:   ${teamStats[guest]['s']}</li>`;
 				}).join('');
 				
 				modal.style.display = "block";
