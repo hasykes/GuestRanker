@@ -93,6 +93,7 @@
 			width: 100%; /* Full width */
 			height: 100%; /* Full height */
 			overflow: auto; /* Enable scroll if needed */
+			-webkit-overflow-scrolling: touch; /*enable touch screen scrolling*/
 			background-color: rgb(0,0,0); /* Fallback color */
 			background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 		}
@@ -103,7 +104,11 @@
 			margin: auto;
 			padding: 20px;
 			border: 1px solid #888;
-			width: 80%;
+			width: 50%;
+			height:80%;
+			overflow: auto; /* Enable scroll if needed */
+			-webkit-overflow-scrolling: touch; /*enable touch screen scrolling*/
+			
 		}
 
 		/* The Close Button */
@@ -126,6 +131,22 @@
 			z-index:1;
 			left:47%;
 			bottom:50%;
+		}
+		
+		table {
+			font-family: arial, sans-serif;
+			border-collapse: collapse;
+			width: 100%;
+		}
+
+		td, th {
+			border: 1px solid #dddddd;
+			text-align: left;
+			padding: 8px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #dddddd;
 		}
 
 		</style>
@@ -168,8 +189,19 @@
 					<span class="close">&times;</span>
 					<h1>Ranks</h1>
 					<p>
-						<ol class="guestList">
-						</ol>
+						<table class="guestList" width="100%">
+							<tr>
+								<th width="20%">Guest</th>
+								<th width="20%">Score</th>
+								<th width="20%">Win</th>
+								<th width="20%">Loss</th>
+								<th width="20%">Tie</th>
+							</tr>
+							
+						</table>
+						
+						<!--<ol class="guestList">
+						</ol>-->
 					</p>
 				</div>
 
@@ -231,7 +263,7 @@
 			
 			/*create teamStats object to track yes, no, delta, teams beat and teams lost*/
 			pGuests.forEach(guest => {
-				teamStats[guest] = {'y':0,'n':0,'d':0,'w':[],'l':[],'s':1000};
+				teamStats[guest] = {'y':0,'n':0,'d':0,'draw':0,'w':[],'l':[],'t':[],'s':1000};
 			});
 			
 			getTeams();
@@ -285,23 +317,29 @@
 			
 			function updateStats(win,lose,tie){//tie is boolean
 				
-				teamStats[upToBat[win]]['y'] += 1;/*increase win count*/
-				teamStats[upToBat[win]]['w'].push(upToBat[lose]);/*Track teams beat*/
-				teamStats[upToBat[lose]]['n'] += 1;/*incread loss count*/
-				teamStats[upToBat[lose]]['l'].push(upToBat[win]);/*Track teams lost to*/
+				
+				if (tie === 1){
+					teamStats[upToBat[win]]['draw'] += 1;/*increase tie count*/
+					teamStats[upToBat[win]]['t'].push(upToBat[lose]);/*Track teams tied*/
+					teamStats[upToBat[lose]]['draw'] += 1;/*increase tie count*/
+					teamStats[upToBat[lose]]['t'].push(upToBat[win]);/*Track teams tied*/
+					
+					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],.5);//Update Tie Scores
+					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],.5);//Update Tie Scores	
+				}else{	
+					teamStats[upToBat[win]]['y'] += 1;/*increase win count*/
+					teamStats[upToBat[win]]['w'].push(upToBat[lose]);/*Track teams beat*/
+					teamStats[upToBat[lose]]['n'] += 1;/*incread loss count*/
+					teamStats[upToBat[lose]]['l'].push(upToBat[win]);/*Track teams lost to*/
+					
+					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],1); //Update Winner Score
+					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],0); //Update Loser Score
+				}
 				
 				if (trial >= numTrials){
 					sortedGuests = sortGuests();
 				}else{
 					getTeams();
-				}
-				
-				if (tie === 1){
-					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],.5);//Update Tie Scores
-					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],.5);//Update Tie Scores	
-				}else{
-					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],1); //Update Winner Score
-					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],0); //Update Loser Score
 				}
 				console.log(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'])	
 			}
@@ -318,6 +356,12 @@
 				} 
 			}
 			
+			function createTable(){
+				guestList.innerHTML = sortedGuests.map((guest,i) => {
+					return
+				
+				})
+			}
 			// Returns a csv from an object of objects
 			// values separated by tabs and rows separated by newlines
 /*			function CSV(obj) {
@@ -340,8 +384,16 @@
 			} */
 			
 			function populateList(sortedGuests) {
-				guestList.innerHTML = sortedGuests.map((guest,i) => {
-					return `<li>${guest}  | Score:   ${teamStats[guest]['s']}</li>`;
+				guestList.innerHTML += sortedGuests.map((guest,i) => {
+					//return `<li>${guest}  | Score:   ${teamStats[guest]['s']}</li>`; //If You want to use a list
+					return `
+					<tr>
+						<td>${guest}</td>
+						<td>${teamStats[guest]['s']}</td>
+						<td>${teamStats[guest]['y']}</td>
+						<td>${teamStats[guest]['n']}</td>
+						<td>${teamStats[guest]['draw']}</td>
+					</tr> `
 				}).join('');
 				
 				modal.style.display = "block";
