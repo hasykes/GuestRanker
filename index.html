@@ -84,13 +84,6 @@
 		.sliderCon{
 			margin:auto auto;
 		}
-
-		#uploadCSV{
-			z-index:1;
-			position:absolute;
-			bottom:0%;
-			left:41%;
-		}
 		
 		/* The Modal (background) */
 		.modal {
@@ -158,20 +151,14 @@
 		tr:nth-child(even) {
 			background-color: #dddddd;
 		}
-
-		.inputMod{
-			display:block;
-		}
 		
 		</style>
 	</head>
-	<body>
+	<body onload="displayLogin()">
 		<div class="container">
 			<div id="mainUI">
 				<div class="teamCon" id="teamConTop">
 					<h1>Guest Ranker</h1>
-					
-					<input type="file" name="uploadCSV" id="uploadCSV" accept=".csv" onchange="handleFiles(this.files)">
 				</div>
 				<div class="teamCon" id="teamConMid">
 					
@@ -212,12 +199,8 @@
 								<th width="20%">Win</th>
 								<th width="20%">Loss</th>
 								<th width="20%">Tie</th>
-							</tr>
-							
+							</tr>		
 						</table>
-						
-						<!--<ol class="guestList">
-						</ol>-->
 					</p>
 				</div>
 			</div>
@@ -225,6 +208,8 @@
 				<!-- Modal content -->
 				<div class="modal-content">
 					<span class="close">&times;</span>
+					<h2>Please upload a CSV file containing your guest list!</h2>
+					<input type="file" name="uploadCSV" id="uploadCSV" accept=".csv" onchange="handleFiles(this.files)">
 				</div>
 			</div>
 		</div>
@@ -245,10 +230,9 @@
 			
 			var guests;
 			
-			const pGuests = [];
+			var pGuests;
 			const teamStats = {};
-			
-			let numGuests = inputs[1].value;
+		
 			let numTrials = inputs[0].value;
 			let trial = 0;
 			
@@ -277,19 +261,6 @@
 			})();
 	//-----------------------------------------------------------------------------------
 	
-			/*create guest array for potential guests*/
-			var i;
-			for (i = 0; i < numGuests; i++) { 
-				pGuests.push('p'+i);
-			}
-			
-			/*create teamStats object to track yes, no, delta, teams beat and teams lost*/
-			pGuests.forEach(guest => {
-				teamStats[guest] = {'y':0,'n':0,'d':0,'draw':0,'w':[],'l':[],'t':[],'s':1000};
-			});
-			
-			getTeams();
-			
 			/**/
 			function getTeams(){
 				let t1Index;
@@ -318,7 +289,15 @@
 				
 				return upToBat = [t1Index,t2Index];
 			}
-			
+
+			function createTeamObj(){			
+				/*create teamStats object to track yes, no, delta, teams beat and teams lost*/
+				pGuests.forEach(guest => {
+				teamStats[guest] = {'y':0,'n':0,'d':0,'draw':0,'w':[],'l':[],'t':[],'s':1000};
+				
+			});
+			getTeams();
+	}		
 			function sortGuests(){
 				t1Button.style = "display:none;";
 				t2Button.style = "display:none;";
@@ -332,14 +311,12 @@
 				const sortedGuests = pGuests.sort((a,b) => teamStats[a]['s'] > teamStats[b]['s'] ? -1 : 1 );
 				/*console.table(sortedGuests);
 				console.table(teamStats);*/
-				console.log(teamStats);
+				//console.log(teamStats);
 				populateList(sortedGuests);
 				return sortedGuests
 			}
 			
 			function updateStats(win,lose,tie){//tie is boolean
-				
-				
 				if (tie === 1){
 					teamStats[upToBat[win]]['draw'] += 1;/*increase tie count*/
 					teamStats[upToBat[win]]['t'].push(upToBat[lose]);/*Track teams tied*/
@@ -377,34 +354,7 @@
 					//numGuests = this.value;
 				} 
 			}
-			
-			function createTable(){
-				guestList.innerHTML = sortedGuests.map((guest,i) => {
-					return
-				
-				})
-			}
-			// Returns a csv from an object of objects
-			// values separated by tabs and rows separated by newlines
-/*			function CSV(obj) {
-				const col = [];
-				for (var key in obj) {
-					const row = [];
-				  for(var key2 in obj[key]){
-					row.push(obj[key][key2]);
-				  }
-				  row.forEach(item => {})
-				  col.push(row);
-				  console.log('col');
-				  console.log(col);
-				  
-				  stringy = JSON.stringify(obj[key]).split(',');
-				  console.log(stringy);
-				  
-				}
-				console.log(col.join('\n'));
-			} */
-			
+
 			function populateList(sortedGuests) {
 				guestList.innerHTML += sortedGuests.map((guest,i) => {
 					//return `<li>${guest}  | Score:   ${teamStats[guest]['s']}</li>`; //If You want to use a list
@@ -418,7 +368,7 @@
 					</tr> `
 				}).join('');
 				
-				modal.style.display = "block";
+				modal[0].style.display = "block";
 
 			}
 			
@@ -429,18 +379,19 @@
 					}
 				if(modToClose.id === "myModal"){
 					console.log(modToClose.id)
-					location = location;
 				}
+				location = location;
 			}
 
 			    function handleFiles(files) {
 					// Check for the various File API support.
 					if (window.FileReader) {
 						getAsText(files[0])
+						modal[1].style.display ="none";
 					} else {
-						alert('FileReader are not supported in this browser.');
+						alert('FileReader is not supported in this browser.');
 					}
-					return guests;
+					
 				}
 				function getAsText(fileToRead) {
 					var reader = new FileReader();
@@ -453,12 +404,18 @@
 
 				function loadHandler(event) {
 					var csv = event.target.result;
-					guests =  processData(csv);
+					pGuests = [...processData(csv)];
+					
+					localStorage.guestList = JSON.stringify(pGuests);
+					createTeamObj(pGuests);
 					}
 					
 				function processData(csv) {
-					var allTextLines = csv.split(/\r\n|\n/);
-					var lines = [];
+					return csv.split(",");
+					
+					//Why tf is this so complicated??
+					/*var lines = [];
+					
 					for (var i=0; i<allTextLines.length; i++) {
 						var data = allTextLines[i].split(';');
 							var tarr = [];
@@ -466,15 +423,31 @@
 								tarr.push(data[j]);
 							}
 							lines.push(tarr);
-					}
-					return lines;
+					}*/
 					}
 
 				function errorHandler(evt) {
 					if(evt.target.error.name == "NotReadableError") {
-						alert("Canno't read file !");
+						alert("Cannot read file !");
 					}
 					}
+				
+				function displayLogin(){
+					if (typeof(Storage) !== "undefined") {
+						// Code for localStorage/sessionStorage.
+						if(localStorage.guestList){
+							pGuests = [...JSON.parse(localStorage.getItem("guestList"))];
+							createTeamObj(pGuests);
+						}else{
+							modal[1].style.display = "block";
+						}
+
+					} else {
+						// Sorry! No Web Storage support..
+						alert("Your browser does not support Local Storage :(")
+					}
+
+				}
 			
 			inputs.forEach(input => input.addEventListener('change', screenUpdate));
 			closeButton.forEach(button => button.addEventListener('click', closeModal));
