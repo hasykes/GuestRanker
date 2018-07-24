@@ -1,457 +1,466 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<meta name="viewport" content="width=device-width">
-		<title>Guest Ranker</title>
+<head>
+	<meta charset="utf-8">
+	<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width" name="viewport">
+	<title>Guest Ranker</title>
+	<style>
+	       html {
+	       	width: 100vw;
+	       	height: 100vh;
+	       	background: linen;
+	       }
+	       body {
+	       	height: 100%;
+	       	width: 100%;
+	       }
+	       .container {
+	       	width: 100%;
+	       	height: 100%;
+	       	padding: 10% 0;
+	       	display: flex;
+	       	justify-content: center;
+	       }
+	       #mainUI {
+	       	width: 600px;
+	       	height: 600px;
+	       	border: 1px dashed red;
+	       	text-align: center;
+	       	display: flex;
+	       	flex-direction: column;
+	       	background: linear-gradient(141deg, #0fb8ad 0%, #1fc8db 51%, #2cb5e8 75%);
+	       	border: 1px ridge black;
+	       	border-radius: 10px;
+	       	box-shadow: 5px 10px #888888;
+	       }
+	       .teamCon {
+	       	/*border:1px solid blue;*/
+	       	display: flex;
+	       	flex-direction: row;
+	       	/*align-items:center;*/
+	       }
+	       div h1 {
+	       	margin: 0 auto;
+	       	align-self: center;
+	       	display: block;
+	       }
+	       .message {
+	       	margin: 0 auto;
+	       	align-self: center;
+	       }
+	       #teamConTop {
+	       	flex: 1 1 auto;
+	       	position: relative;
+	       }
+	       #teamConMid {
+	       	flex: 2 1 auto;
+	       	position: relative;
+	       }
+	       #teamConBtm {
+	       	flex: 1 1 auto;
+	       }
+	       .team {
+	       	flex: 1 0 auto;
+	       	border: 0px solid green;
+	       }
+	       .teamName {
+	       	margin: 50px 0;
+	       }
+	       .sliderCon {
+	       	margin: auto auto;
+	       }
+	       /* The Modal (background) */
 
-		<style>
-		html{
-			width:100vw;
-			height:100vh;
-			background:linen;
-		}
-		
-		body{
-			height:100%;
-			width:100%;
-		}
-		
-		.container{
-			width:100%;
-			height:100%;
-			padding:10% 0;
-			display:flex;
-			
-			justify-content:center;
-		}
-		
-		#mainUI{
-			width:600px;
-			height:600px;
-			border: 1px dashed red;
-			text-align:center;
-			display:flex;
-			flex-direction:column;
-			
-			background:linear-gradient(141deg, #0fb8ad 0%, #1fc8db 51%, #2cb5e8 75%);
-			border:1px ridge black;
-			border-radius:10px;
-			box-shadow:5px 10px #888888;
-		}
-		
-		.teamCon{
-			/*border:1px solid blue;*/
-			display:flex;
-			flex-direction:row;
-			/*align-items:center;*/
-		}
+	       .modal {
+	       	display: none;
+	       	/* Hidden by default */
+	       	position: fixed;
+	       	/* Stay in place */
+	       	z-index: 2;
+	       	/* Sit on top */
+	       	padding-top: 100px;
+	       	/* Location of the box */
+	       	left: 0;
+	       	top: 0;
+	       	width: 100%;
+	       	/* Full width */
+	       	height: 100%;
+	       	/* Full height */
+	       	overflow: auto;
+	       	/* Enable scroll if needed */
+	       	-webkit-overflow-scrolling: touch;
+	       	/*enable touch screen scrolling*/
+	       	background-color: rgb(0, 0, 0);
+	       	/* Fallback color */
+	       	background-color: rgba(0, 0, 0, 0.4);
+	       	/* Black w/ opacity */
+	       }
+	       /* Modal Content */
 
-		div h1{
-			margin: 0 auto;
-			align-self:center;
-			display:block;
-		}
-		
-		.message{
-			margin: 0 auto;
-			align-self:center;
-		}
-		
-		#teamConTop{
-			flex:1 1 auto;
-			position:relative;
-		}
-		
-		#teamConMid{
-			flex:2 1 auto;
-			position:relative;
-		}
-		#teamConBtm{
-			flex:1 1 auto;
-		}
-		.team{
-			flex:1 0 auto;
-			border:0px solid green;
-		}
-		
-		.teamName{
-			margin:50px 0;
-			
-		}
-		
-		.sliderCon{
-			margin:auto auto;
-		}
-		
-		/* The Modal (background) */
-		.modal {
-			display:none; /* Hidden by default */
-			position: fixed; /* Stay in place */
-			z-index: 2; /* Sit on top */
-			padding-top: 100px; /* Location of the box */
-			left: 0;
-			top: 0;
-			width: 100%; /* Full width */
-			height: 100%; /* Full height */
-			overflow: auto; /* Enable scroll if needed */
-			-webkit-overflow-scrolling: touch; /*enable touch screen scrolling*/
-			background-color: rgb(0,0,0); /* Fallback color */
-			background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-		}
+	       .modal-content {
+	       	background-color: #fefefe;
+	       	margin: auto;
+	       	padding: 20px;
+	       	border: 1px solid #888;
+	       	width: 80%;
+	       	height: 80%;
+	       	overflow: auto;
+	       	/* Enable scroll if needed */
+	       	-webkit-overflow-scrolling: touch;
+	       	/*enable touch screen scrolling*/
+	       }
+	       /* The Close Button */
 
-		/* Modal Content */
-		.modal-content {
-			background-color: #fefefe;
-			margin: auto;
-			padding: 20px;
-			border: 1px solid #888;
-			width: 80%;
-			height:80%;
-			overflow: auto; /* Enable scroll if needed */
-			-webkit-overflow-scrolling: touch; /*enable touch screen scrolling*/
-			
-		}
-
-		/* The Close Button */
-		.close {
-			color: #aaaaaa;
-			float: right;
-			font-size: 28px;
-			font-weight: bold;
-		}
-
-		.close:hover,
-		.close:focus {
-			color: #000;
-			text-decoration: none;
-			cursor: pointer;
-		}
-		
-		.teamTie{
-			position:absolute;
-			z-index:1;
-			left:47%;
-			bottom:50%;
-		}
-		
-		table {
-			font-family: arial, sans-serif;
-			border-collapse: collapse;
-			width: 100%;
-		}
-
-		td, th {
-			border: 1px solid #dddddd;
-			text-align: left;
-			padding: 8px;
-		}
-
-		tr:nth-child(even) {
-			background-color: #dddddd;
-		}
-		
-		</style>
-	</head>
-	<body onload="displayLogin()">
-		<div class="container">
-			<div id="mainUI">
-				<div class="teamCon" id="teamConTop">
-					<h1>Guest Ranker</h1>
+	       .close {
+	       	color: #aaaaaa;
+	       	float: right;
+	       	font-size: 28px;
+	       	font-weight: bold;
+	       }
+	       .close:hover, .close:focus {
+	       	color: #000;
+	       	text-decoration: none;
+	       	cursor: pointer;
+	       }
+	       .teamTie {
+	       	position: absolute;
+	       	z-index: 1;
+	       	left: 47%;
+	       	bottom: 50%;
+	       }
+	       table {
+	       	font-family: arial, sans-serif;
+	       	border-collapse: collapse;
+	       	width: 100%;
+	       }
+	       td, th {
+	       	border: 1px solid #dddddd;
+	       	text-align: left;
+	       	padding: 8px;
+	       }
+	       tr:nth-child(even) {
+	       	background-color: #dddddd;
+	       }
+	       #newGuestList {
+	       	margin: auto;
+	       }
+	</style>
+</head>
+<body onload="displayLogin()">
+	<div class="container">
+		<div id="mainUI">
+			<div class="teamCon" id="teamConTop">
+				<h1>Guest Ranker</h1>
+			</div>
+			<div class="teamCon" id="teamConMid">
+				<div class="team">
+					<p class="teamName" id="team1Name"><strong>Team 1 Name</strong></p><button id="team1Button" onclick="updateStats(0,1,0)" style="">Choose Team 1</button>
 				</div>
-				<div class="teamCon" id="teamConMid">
-					
-					<div class="team">
-						<p class="teamName" id="team1Name"><strong>Team 1 Name</strong></p>
-						<button id="team1Button" style="" onclick="updateStats(0,1,0)">Choose Team 1</button>
-						
-					</div>
-					
-					<div class="teamTie"><button id="teamTie" style="z-index:1;" onclick="updateStats(0,1,1)">Tie</button></div>
-					<div class="team">
-						<p class="teamName" id="team2Name"><strong>Team 2 Name</strong></p>
-						<button id="team2Button" style="" onclick="updateStats(1,0,0)">Choose Team 2</button>
-					</div>
+				<div class="teamTie">
+					<button id="teamTie" onclick="updateStats(0,1,1)" style="z-index:1;">Tie</button>
 				</div>
-				<div class="teamCon" id="teamConBtm">
-					<div class="sliderCon">
-						Number of Trials:<p id="trialNum">5</p></br>
-						<input type="range" name="numOfTrials" min="1" max="500" value="5" class="slider">
-					</div>	
-				<!--	<div class="sliderCon">	
-						Number of Guests:<p id="guestNum">25</p></br>
-						<input type="range" name="numOfGuests" min="1" max="250" value="25" class="slider">
-					</div>	-->
+				<div class="team">
+					<p class="teamName" id="team2Name"><strong>Team 2 Name</strong></p><button id="team2Button" onclick="updateStats(1,0,0)" style="">Choose Team 2</button>
 				</div>
 			</div>
-			<!-- The Modal -->
-			<div id="myModal" class="modal">
-				<!-- Modal content -->
-				<div class="modal-content">
-					<span class="close">&times;</span>
-					<h1>Ranks</h1>
-					<p>
-						<table class="guestList" width="100%">
-							<tr>
-								<th width="20%">Guest</th>
-								<th width="20%">Score</th>
-								<th width="20%">Win</th>
-								<th width="20%">Loss</th>
-								<th width="20%">Tie</th>
-							</tr>		
-						</table>
-					</p>
-				</div>
+			<div class="teamCon" id="teamConBtm">
+				<button class="" id="newGuestList" name="newGuestList" onclick="newGuestList()">Upload new Guest List</button> <!--    <div class="sliderCon">
+                        Number of Trials:<p id="trialNum">5</p></br>
+                        <input type="range" name="numOfTrials" min="1" max="500" value="5" class="slider">
+                        
+                    </div>--> <!--    <div class="sliderCon"> 
+                        Number of Guests:<p id="guestNum">25</p></br>
+                        <input type="range" name="numOfGuests" min="1" max="250" value="25" class="slider">
+                    </div>  -->
 			</div>
-			<div id="loginModal" class="modal inputMod">
-				<!-- Modal content -->
-				<div class="modal-content">
-					<span class="close">&times;</span>
-					<h2>Please upload a CSV file containing your guest list!</h2>
-					<input type="file" name="uploadCSV" id="uploadCSV" accept=".csv" onchange="handleFiles(this.files)">
+		</div><!-- The Modal -->
+		<div class="modal" id="myModal">
+			<!-- Modal content -->
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<p><a href='#' onclick='exportTeamStatsAsCSV();'>Download CSV</a></p>
+				<h1>Ranks</h1>
+				<p></p>
+				<table class="guestList" width="100%">
+					<tr>
+						<th width="20%">Guest</th>
+						<th width="20%">Score</th>
+						<th width="20%">Win</th>
+						<th width="20%">Loss</th>
+						<th width="20%">Tie</th>
+					</tr>
+				</table>
+				<p></p>
+			</div>
+		</div>
+		<div class="modal inputMod" id="loginModal">
+			<!-- Modal content -->
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<h2>Please upload a CSV file containing your guest list!</h2><input accept=".csv" id="uploadCSV" name="uploadCSV" onchange="handleFiles(this.files)" type="file">
+				<div class="sliderCon">
+					Number of Trials:
+					<p id="trialNum">5</p><br>
+					<input class="slider" max="500" min="1" name="numOfTrials" type="range" value="5">
 				</div>
 			</div>
 		</div>
-		<script>
-			const t1Button = document.querySelector('#team1Button');
-			const t2Button = document.querySelector('#team2Button');
-			const t1Name = document.querySelector('#team1Name');
-			const t2Name = document.querySelector('#team2Name');
-			const message = document.querySelector('.message');
-			const inputs = document.querySelectorAll('input');
-			const guestNum = document.querySelector('#guestNum');
-			const trialNum = document.querySelector('#trialNum');
-			
-			/*Modal constants*/
-			const closeButton = document.querySelectorAll('.close');
-			const modal = document.querySelectorAll('.modal');
-			const guestList = document.querySelector('.guestList');
-			
-			var guests;
-			
-			var pGuests;
-			const teamStats = {};
-		
-			let numTrials = inputs[0].value;
-			let trial = 0;
-			
-			let upToBat;
-			
-			//ELO function from https://github.com/moroshko/elo.js
-			window.Elo = (function() {
-			function getRatingDelta(myRating, opponentRating, myGameResult) {
-				if ([0, 0.5, 1].indexOf(myGameResult) === -1) {
-				  return null;
-				}
-				
-				var myChanceToWin = 1 / ( 1 + Math.pow(10, (opponentRating - myRating) / 400));
+	</div>
+	<script>
+	           const t1Button = document.querySelector('#team1Button');
+	           const t2Button = document.querySelector('#team2Button');
+	           const t1Name = document.querySelector('#team1Name');
+	           const t2Name = document.querySelector('#team2Name');
+	           const message = document.querySelector('.message');
+	           const inputs = document.querySelectorAll('input');
+	           const guestNum = document.querySelector('#guestNum');
+	           const trialNum = document.querySelector('#trialNum');
+	           /*Modal constants*/
+	           const closeButton = document.querySelectorAll('.close');
+	           const modal = document.querySelectorAll('.modal');
+	           const guestList = document.querySelector('.guestList');
+	           var guests;
+	           var pGuests;
+	           const teamStats = {};
+	           let numTrials = inputs[1].value;
+	           let trial = 0;
+	           let upToBat;
+	           //ELO function from https://github.com/moroshko/elo.js
+	           window.Elo = (function() {
+	               function getRatingDelta(myRating, opponentRating, myGameResult) {
+	                   if ([0, 0.5, 1].indexOf(myGameResult) === -1) {
+	                       return null;
+	                   }
+	                   var myChanceToWin = 1 / (1 + Math.pow(10, (opponentRating - myRating) / 400));
+	                   return Math.round(32 * (myGameResult - myChanceToWin));
+	               }
 
-				return Math.round(32 * (myGameResult - myChanceToWin));
-			  }
+	               function getNewRating(myRating, opponentRating, myGameResult) {
+	                   return myRating + getRatingDelta(myRating, opponentRating, myGameResult);
+	               }
+	               return {
+	                   getRatingDelta: getRatingDelta,
+	                   getNewRating: getNewRating
+	               };
+	           })();
+	           //-----------------------------------------------------------------------------------
+	           /**/
+	           function getTeams() {
+	               let t1Index;
+	               let t2Index;
+	               let numTeamsLoaded = 0;
+	               let randomNum;
+	               while (numTeamsLoaded < 2) {
+	                   randomNum = Math.floor(Math.random() * pGuests.length);
+	                   if (numTeamsLoaded == 0) {
+	                       t1Index = pGuests[randomNum];
+	                       /*console.log("t1" + t1Index);*/
+	                       numTeamsLoaded = 1;
+	                   } else {
+	                       if (t1Index != pGuests[randomNum]) {
+	                           t2Index = pGuests[randomNum];
+	                           /*console.log("t2" + t2Index);*/
+	                           numTeamsLoaded = 2;
+	                       }
+	                   }
+	               }
+	               t1Name.innerText = t1Index;
+	               t2Name.innerText = t2Index;
+	               trial += 1;
+	               return upToBat = [t1Index, t2Index];
+	           }
 
-			  function getNewRating(myRating, opponentRating, myGameResult) {
-				return myRating + getRatingDelta(myRating, opponentRating, myGameResult);
-			  }
+	           function createTeamObj() {
+	               /*create teamStats object to track yes, no, delta, teams beat and teams lost*/
+	               pGuests.forEach(guest => {
+	                   teamStats[guest] = {
+	                       'y': 0,
+	                       'n': 0,
+	                       'd': 0,
+	                       'draw': 0,
+	                       'w': [],
+	                       'l': [],
+	                       't': [],
+	                       's': 1000
+	                   };
+	               });
+	               getTeams();
+	           }
 
-			  return {
-				getRatingDelta: getRatingDelta,
-				getNewRating: getNewRating
-			  };
-			})();
-	//-----------------------------------------------------------------------------------
-	
-			/**/
-			function getTeams(){
-				let t1Index;
-				let t2Index;
-				let numTeamsLoaded = 0;
-				let randomNum;
-				
+	           function sortGuests() {
+	               t1Button.style = "display:none;";
+	               t2Button.style = "display:none;";
+	               t1Name.style = "display:none;";
+	               t2Name.style = "display:none;";
+	               pGuests.forEach(guest => {
+	                   teamStats[guest]['d'] = teamStats[guest]['y'] - teamStats[guest]['n'];
+	               });
+	               const sortedGuests = pGuests.sort((a, b) => teamStats[a]['s'] > teamStats[b]['s'] ? -1 : 1);
+	               /*console.table(sortedGuests);
+	               console.table(teamStats);*/
+	               //console.log(teamStats);
+	               populateList(sortedGuests);
+	               localStorage.teamStats = JSON.stringify(teamStats);
+	               return sortedGuests
+	           }
 
-				while(numTeamsLoaded < 2){
-					randomNum = Math.floor(Math.random()*pGuests.length);
-					if (numTeamsLoaded == 0){
-						t1Index = pGuests[randomNum];
-						/*console.log("t1" + t1Index);*/
-						numTeamsLoaded = 1;
-					}else{
-						if(t1Index != pGuests[randomNum]){
-							t2Index = pGuests[randomNum];
-							/*console.log("t2" + t2Index);*/
-							numTeamsLoaded = 2;
-						}
-					}	
-				}
-				t1Name.innerText = t1Index;
-				t2Name.innerText = t2Index;
-				trial+=1;
-				
-				return upToBat = [t1Index,t2Index];
-			}
+	           function updateStats(win, lose, tie) { //tie is boolean
+	               if (tie === 1) {
+	                   teamStats[upToBat[win]]['draw'] += 1; /*increase tie count*/
+	                   teamStats[upToBat[win]]['t'].push(upToBat[lose]); /*Track teams tied*/
+	                   teamStats[upToBat[lose]]['draw'] += 1; /*increase tie count*/
+	                   teamStats[upToBat[lose]]['t'].push(upToBat[win]); /*Track teams tied*/
+	                   teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'], .5); //Update Tie Scores
+	                   teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'], teamStats[upToBat[win]]['s'], .5); //Update Tie Scores  
+	               } else {
+	                   teamStats[upToBat[win]]['y'] += 1; /*increase win count*/
+	                   teamStats[upToBat[win]]['w'].push(upToBat[lose]); /*Track teams beat*/
+	                   teamStats[upToBat[lose]]['n'] += 1; /*incread loss count*/
+	                   teamStats[upToBat[lose]]['l'].push(upToBat[win]); /*Track teams lost to*/
+	                   teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'], 1); //Update Winner Score
+	                   teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'], teamStats[upToBat[win]]['s'], 0); //Update Loser Score
+	               }
+	               if (trial >= numTrials) {
+	                   sortedGuests = sortGuests();
+	               } else {
+	                   getTeams();
+	               }
+	               //console.log(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'])  
+	           }
 
-			function createTeamObj(){			
-				/*create teamStats object to track yes, no, delta, teams beat and teams lost*/
-				pGuests.forEach(guest => {
-				teamStats[guest] = {'y':0,'n':0,'d':0,'draw':0,'w':[],'l':[],'t':[],'s':1000};
-				
-			});
-			getTeams();
-	}		
-			function sortGuests(){
-				t1Button.style = "display:none;";
-				t2Button.style = "display:none;";
-				t1Name.style = "display:none;";
-				t2Name.style = "display:none;";
-				
-				pGuests.forEach(guest => {
-					teamStats[guest]['d'] = teamStats[guest]['y'] - teamStats[guest]['n'];
-				});
-				
-				const sortedGuests = pGuests.sort((a,b) => teamStats[a]['s'] > teamStats[b]['s'] ? -1 : 1 );
-				/*console.table(sortedGuests);
-				console.table(teamStats);*/
-				//console.log(teamStats);
-				populateList(sortedGuests);
-				return sortedGuests
-			}
-			
-			function updateStats(win,lose,tie){//tie is boolean
-				if (tie === 1){
-					teamStats[upToBat[win]]['draw'] += 1;/*increase tie count*/
-					teamStats[upToBat[win]]['t'].push(upToBat[lose]);/*Track teams tied*/
-					teamStats[upToBat[lose]]['draw'] += 1;/*increase tie count*/
-					teamStats[upToBat[lose]]['t'].push(upToBat[win]);/*Track teams tied*/
-					
-					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],.5);//Update Tie Scores
-					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],.5);//Update Tie Scores	
-				}else{	
-					teamStats[upToBat[win]]['y'] += 1;/*increase win count*/
-					teamStats[upToBat[win]]['w'].push(upToBat[lose]);/*Track teams beat*/
-					teamStats[upToBat[lose]]['n'] += 1;/*incread loss count*/
-					teamStats[upToBat[lose]]['l'].push(upToBat[win]);/*Track teams lost to*/
-					
-					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'],teamStats[upToBat[lose]]['s'],1); //Update Winner Score
-					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'],teamStats[upToBat[win]]['s'],0); //Update Loser Score
-				}
-				
-				if (trial >= numTrials){
-					sortedGuests = sortGuests();
-				}else{
-					getTeams();
-				}
-				console.log(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'])	
-			}
-			
-			function screenUpdate(){
-			
-				if (this.name === 'numOfTrials'){
-					trialNum.innerText = this.value;
-					numTrials = this.value;
-					
-				}else{
-					//guestNum.innerText = this.value;
-					//numGuests = this.value;
-				} 
-			}
+	           function screenUpdate() {
+	               if (this.name === 'numOfTrials') {
+	                   trialNum.innerText = this.value;
+	                   numTrials = this.value;
+	               } else {
+	                   //guestNum.innerText = this.value;
+	                   //numGuests = this.value;
+	               }
+	           }
 
-			function populateList(sortedGuests) {
-				guestList.innerHTML += sortedGuests.map((guest,i) => {
-					//return `<li>${guest}  | Score:   ${teamStats[guest]['s']}</li>`; //If You want to use a list
-					return `
-					<tr>
-						<td>${guest}</td>
-						<td>${teamStats[guest]['s']}</td>
-						<td>${teamStats[guest]['y']}</td>
-						<td>${teamStats[guest]['n']}</td>
-						<td>${teamStats[guest]['draw']}</td>
-					</tr> `
-				}).join('');
-				
-				modal[0].style.display = "block";
+	           function populateList(sortedGuests) {
+	               guestList.innerHTML += sortedGuests.map((guest, i) => {
+	                   //return `<li>${guest}  | Score:   ${teamStats[guest]['s']}<\/li>`; //If You want to use a list
+	                   return `
+	                   <tr>
+	                       <td>${guest}<\/td>
+	                       <td>${teamStats[guest]['s']}<\/td>
+	                       <td>${teamStats[guest]['y']}<\/td>
+	                       <td>${teamStats[guest]['n']}<\/td>
+	                       <td>${teamStats[guest]['draw']}<\/td>
+	                   <\/tr> `
+	               }).join('');
+	               modal[0].style.display = "block";
+	           }
 
-			}
-			
-			function closeModal(){
-				var modToClose = this.parentElement.parentElement;
-				if(modToClose.style.display != "none"){
-						modToClose.style.display = "none";
-					}
-				if(modToClose.id === "myModal"){
-					console.log(modToClose.id)
-				}
-				location = location;
-			}
+	           function closeModal() {
+	               var modToClose = this.parentElement.parentElement;
+	               if (modToClose.style.display != "none") {
+	                   modToClose.style.display = "none";
+	               }
+	               location = location;
+	           }
 
-			    function handleFiles(files) {
-					// Check for the various File API support.
-					if (window.FileReader) {
-						getAsText(files[0])
-						modal[1].style.display ="none";
-					} else {
-						alert('FileReader is not supported in this browser.');
-					}
-					
-				}
-				function getAsText(fileToRead) {
-					var reader = new FileReader();
-					// Read file into memory as UTF-8      
-					reader.readAsText(fileToRead);
-					// Handle errors load
-					reader.onload = loadHandler;
-					reader.onerror = errorHandler;
-					}
+	           function handleFiles(files) {
+	               // Check for the various File API support.
+	               if (window.FileReader) {
+	                   getAsText(files[0])
+	                   modal[1].style.display = "none";
+	               } else {
+	                   alert('FileReader is not supported in this browser.');
+	               }
+	           }
 
-				function loadHandler(event) {
-					var csv = event.target.result;
-					pGuests = [...processData(csv)];
-					
-					localStorage.guestList = JSON.stringify(pGuests);
-					createTeamObj(pGuests);
-					}
-					
-				function processData(csv) {
-					return csv.split(",");
-					
-					//Why tf is this so complicated??
-					/*var lines = [];
-					
-					for (var i=0; i<allTextLines.length; i++) {
-						var data = allTextLines[i].split(';');
-							var tarr = [];
-							for (var j=0; j<data.length; j++) {
-								tarr.push(data[j]);
-							}
-							lines.push(tarr);
-					}*/
-					}
+	           function getAsText(fileToRead) {
+	               var reader = new FileReader();
+	               // Read file into memory as UTF-8      
+	               reader.readAsText(fileToRead);
+	               // Handle errors load
+	               reader.onload = loadHandler;
+	               reader.onerror = errorHandler;
+	           }
 
-				function errorHandler(evt) {
-					if(evt.target.error.name == "NotReadableError") {
-						alert("Cannot read file !");
-					}
-					}
-				
-				function displayLogin(){
-					if (typeof(Storage) !== "undefined") {
-						// Code for localStorage/sessionStorage.
-						if(localStorage.guestList){
-							pGuests = [...JSON.parse(localStorage.getItem("guestList"))];
-							createTeamObj(pGuests);
-						}else{
-							modal[1].style.display = "block";
-						}
+	           function loadHandler(event) {
+	               var csv = event.target.result;
+	               pGuests = [...processData(csv)];
+	               localStorage.guestList = JSON.stringify(pGuests);
+	               createTeamObj(pGuests);
+	           }
 
-					} else {
-						// Sorry! No Web Storage support..
-						alert("Your browser does not support Local Storage :(")
-					}
+	           function processData(csv) {
+	               return csv.split(",");
+	               //Why tf is this so complicated??
+	               /*var lines = [];
+	                   
+	               for (var i=0; i<allTextLines.length; i++) {
+	                   var data = allTextLines[i].split(';');
+	                       var tarr = [];
+	                       for (var j=0; j<data.length; j++) {
+	                           tarr.push(data[j]);
+	                       }
+	                       lines.push(tarr);
+	               }*/
+	           }
 
-				}
-			
-			inputs.forEach(input => input.addEventListener('change', screenUpdate));
-			closeButton.forEach(button => button.addEventListener('click', closeModal));
-			
-		</script>
-	</body>
+	           function errorHandler(evt) {
+	               if (evt.target.error.name == "NotReadableError") {
+	                   alert("Cannot read file !");
+	               }
+	           }
+
+	           function displayLogin() {
+	               if (typeof(Storage) !== "undefined") {
+	                   // Code for localStorage/sessionStorage.
+	                   if (localStorage.guestList) {
+	                       pGuests = [...JSON.parse(localStorage.getItem("guestList"))];
+	                       createTeamObj(pGuests);
+	                   } else {
+	                       modal[1].style.display = "block";
+	                   }
+	               } else {
+	                   // Sorry! No Web Storage support..
+	                   alert("Your browser does not support Local Storage :(")
+	               }
+	           }
+
+	           function newGuestList() {
+	               localStorage.removeItem("guestList")
+	               location = location;
+	           }
+
+	           function exportTeamStatsAsCSV() {
+	               const keyIDs = ["y", "n", "d", "draw", "s"]; //do not include actual team names yet
+	               const teamKeys = Object.keys(teamStats);
+	               const csvHeader = "team,win,loss,delta,draw,score \n";
+	               var csvContent = csvHeader;
+	               var curLine;
+	               var data;
+	               teamKeys.forEach(key => {
+	                   var curLine = [];
+	                   keyIDs.forEach(keyID => {
+	                       curLine.push(teamStats[key][keyID]);
+	                   });
+	                   csvContent = csvContent + key + "," + curLine.join(",") + "\n";
+	               });
+	               //return console.log(csvContent);
+	               //Should I put this in a seperate function???
+	               if (csvContent == null) {
+	                   console.log('hi');
+	                   return
+	               }
+	               filename = 'export.csv';
+	               if (!csvContent.match(/^data:text\/csv/i)) {
+	                   csv = 'data:text/csv;charset=utf-8,' + csvContent;
+	               }
+	               data = encodeURI(csv);
+	               link = document.createElement('a');
+	               link.setAttribute('href', data);
+	               link.setAttribute('download', filename);
+	               link.click();
+	           }
+	           inputs.forEach(input => input.addEventListener('change', screenUpdate));
+	           closeButton.forEach(button => button.addEventListener('click', closeModal));
+	</script>
+</body>
 </html>
