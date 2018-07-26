@@ -10,6 +10,8 @@
 	       	width: 100vw;
 	       	height: 100vh;
 	       	background: linen;
+			overflow:hidden;
+
 	       }
 	       body {
 	       	height: 100%;
@@ -59,6 +61,7 @@
 	       }
 	       #teamConBtm {
 	       	flex: 1 1 auto;
+			display:inline-block;
 	       }
 	       .team {
 	       	flex: 1 0 auto;
@@ -68,7 +71,7 @@
 	       	margin: 50px 0;
 	       }
 	       .sliderCon {
-	       	margin: auto auto;
+	       	margin: 10% 40%;
 	       }
 	       /* The Modal (background) */
 
@@ -79,13 +82,13 @@
 	       	/* Stay in place */
 	       	z-index: 2;
 	       	/* Sit on top */
-	       	padding-top: 100px;
+	       	padding-top: 10%;
 	       	/* Location of the box */
 	       	left: 0;
 	       	top: 0;
 	       	width: 100%;
 	       	/* Full width */
-	       	height: 100%;
+	       	height: 90%;
 	       	/* Full height */
 	       	overflow: auto;
 	       	/* Enable scroll if needed */
@@ -143,8 +146,13 @@
 	       	background-color: #dddddd;
 	       }
 	       #newGuestList {
-	       	margin: auto;
+	       	padding: auto;
 	       }
+
+		   .btmCon{
+			   padding:10px;
+		   }
+
 	</style>
 </head>
 <body onload="displayLogin()">
@@ -165,16 +173,16 @@
 				</div>
 			</div>
 			<div class="teamCon" id="teamConBtm">
-				<button class="" id="newGuestList" name="newGuestList" onclick="newGuestList()">Upload new Guest List</button> <!--    <div class="sliderCon">
-                        Number of Trials:<p id="trialNum">5</p></br>
-                        <input type="range" name="numOfTrials" min="1" max="500" value="5" class="slider">
-                        
-                    </div>--> <!--    <div class="sliderCon"> 
-                        Number of Guests:<p id="guestNum">25</p></br>
-                        <input type="range" name="numOfGuests" min="1" max="250" value="25" class="slider">
-                    </div>  -->
+				<div class="btmCon">
+					<button class="" id="newGuestList" name="newGuestList" onclick="newGuestList()">Upload new Guest List</button>
+				</div>
+				<div class="btmCon">
+					<input type="checkbox" id="enableKeyPress">
+					<label for="enableKeyPress">Enable Arrow Keys for Voting</label>
+				</div>
 			</div>
-		</div><!-- The Modal -->
+
+       <!-- The Modal -->
 		<div class="modal" id="myModal">
 			<!-- Modal content -->
 			<div class="modal-content">
@@ -215,7 +223,8 @@
 	           const message = document.querySelector('.message');
 	           const inputs = document.querySelectorAll('input');
 	           const guestNum = document.querySelector('#guestNum');
-	           const trialNum = document.querySelector('#trialNum');
+			   const trialNum = document.querySelector('#trialNum');
+			   const enableKeys = document.querySelector('#enableKeyPress');
 	           /*Modal constants*/
 	           const closeButton = document.querySelectorAll('.close');
 	           const modal = document.querySelectorAll('.modal');
@@ -223,7 +232,7 @@
 	           var guests;
 	           var pGuests;
 	           const teamStats = {};
-	           let numTrials = inputs[1].value;
+	           let numTrials = inputs[2].value;
 	           let trial = 0;
 	           let upToBat;
 	           //ELO function from https://github.com/moroshko/elo.js
@@ -458,9 +467,23 @@
 	               link.setAttribute('href', data);
 	               link.setAttribute('download', filename);
 	               link.click();
-	           }
+			   }
+			   
+			   function keysPressed(e){
+					if(enableKeys.checked){
+						if (e.keyCode === 37){
+							updateStats(0,1,0);//Team 1 win
+						}else if(e.keyCode === 39){
+							updateStats(1,0,0);//Team 2 win
+						}else if(e.keyCode === 38){
+							updateStats(0,1,1);//Tie (Loss or Win needs to be equal to 1 to ensure both teams get tie credit)
+						}
+					}
+			   }
+			   
 	           inputs.forEach(input => input.addEventListener('change', screenUpdate));
-	           closeButton.forEach(button => button.addEventListener('click', closeModal));
+			   closeButton.forEach(button => button.addEventListener('click', closeModal));
+			   window.addEventListener('keydown',keysPressed);
 	</script>
 </body>
 </html>
