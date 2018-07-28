@@ -23,7 +23,7 @@
 		.container {
 			width: 100%;
 			height: 100%;
-			padding: 10% 0;
+			padding: 5% 0;
 			display: flex;
 			justify-content: center;
 		}
@@ -77,6 +77,7 @@
 		.team {
 			flex: 1 0 auto;
 			border: 0px solid green;
+			/*	transition: background-color 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);*/
 		}
 
 		.teamName {
@@ -176,6 +177,10 @@
 		.btmCon {
 			padding: 10px;
 		}
+
+		.winner {
+			background-color: antiquewhite;
+		}
 	</style>
 </head>
 
@@ -259,6 +264,7 @@
 			const guestNum = document.querySelector('#guestNum');
 			const trialNum = document.querySelector('#trialNum');
 			const enableKeys = document.querySelector('#enableKeyPress');
+			const teams = document.querySelectorAll('.team');
 			/*Modal constants*/
 			const closeButton = document.querySelectorAll('.close');
 			const modal = document.querySelectorAll('.modal');
@@ -356,6 +362,8 @@
 					teamStats[upToBat[lose]]['t'].push(upToBat[win]); /*Track teams tied*/
 					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'], .5); //Update Tie Scores
 					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'], teamStats[upToBat[win]]['s'], .5); //Update Tie Scores  
+					teams.forEach(team => team.classList.add('winner'));
+					setTimeout(function () { teams.forEach(team => team.classList.remove('winner')) }, 100);
 				} else {
 					teamStats[upToBat[win]]['y'] += 1; /*increase win count*/
 					teamStats[upToBat[win]]['w'].push(upToBat[lose]); /*Track teams beat*/
@@ -363,6 +371,8 @@
 					teamStats[upToBat[lose]]['l'].push(upToBat[win]); /*Track teams lost to*/
 					teamStats[upToBat[win]]['s'] = Elo.getNewRating(teamStats[upToBat[win]]['s'], teamStats[upToBat[lose]]['s'], 1); //Update Winner Score
 					teamStats[upToBat[lose]]['s'] = Elo.getNewRating(teamStats[upToBat[lose]]['s'], teamStats[upToBat[win]]['s'], 0); //Update Loser Score
+					teams[win].classList.add('winner');
+					setTimeout(function () { teams[win].classList.remove('winner') }, 100);
 				}
 				if (trial >= numTrials) {
 					sortedGuests = sortGuests();
